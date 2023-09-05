@@ -5,8 +5,12 @@ class Piece():
         self.piece_number = piece_number
         self.position = [x, y]
 
+        self.on_board = False
+
+
     def __str__(self) -> str:
         return str(self.piece_number)
+    
     
     def __repr__(self) -> str:
         return str(self.piece_number)
