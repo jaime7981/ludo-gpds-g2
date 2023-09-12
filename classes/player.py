@@ -1,9 +1,10 @@
-from piece import Piece
+from classes.piece import Piece
 
 class Player():
-    def __init__(self, name = 'default') -> None:
+    def __init__(self, name = 'default', color = 'white') -> None:
         self.name = name
         self.pieces = []
+        self.color = color
         
         self.assign_pieces()
 
