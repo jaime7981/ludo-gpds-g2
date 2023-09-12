@@ -2,6 +2,7 @@ from classes.dice import Dice
 import random
 
 NUMBER_OF_SQUARES = 58
+BOARD_LOOP = 52
 SAFE_SQUARES = 6
 
 OFFSETS = {
@@ -31,56 +32,64 @@ class Board():
         self.players.remove(player)
 
     
-    def set_player_order(self):
+    def setup_players(self, dice_rolls = []):
         # Maybe change dice roll implementation into a gui handler
-        players_roll_for_turns = self.dice.roll_multiple(len(self.players))
+        dice_rolls = self.dice.roll_multiple(len(self.players))
 
-        for i in range(len(players_roll_for_turns)):
-            for j in range(len(players_roll_for_turns)):
-                if players_roll_for_turns[i] > players_roll_for_turns[j]:
-                    temp = players_roll_for_turns[i]
-                    players_roll_for_turns[i] = players_roll_for_turns[j]
-                    players_roll_for_turns[j] = temp
+        # players order
+        starting_player = self.players[dice_rolls.index(max(dice_rolls))]
+        self.players = self.players[self.players.index(starting_player):] + self.players[:self.players.index(starting_player)]
 
-                    temp = self.players[i]
-                    self.players[i] = self.players[j]
-                    self.players[j] = temp
+        #players color
+        self.set_players_color()
+
+
+    def set_players_color(self):
+
+        for iter, key, value in zip(range(len(self.players)), OFFSETS.keys(), OFFSETS.values()):
+            self.players[iter].color = key
+            self.players[iter].offset = value
 
 
     def setup_game(self):
-        self.set_player_order()
+        self.setup_players()
 
         for player in self.players:
             for piece in player.pieces:
                 self.add_off_board_piece(piece)
 
 
-    def player_roll_dice(self, player):
+    def player_roll_dice(self, player, dice_value = 0):
+        # Maybe change dice roll implementation into a gui handler
         dice_value = self.dice.roll()
 
-        # define usage of on board and off board pieces
+        # TODO: define usage of on board and off board pieces
+
+        random_piece_position = random.randint(0, len(player.get_pieces_on_board()) - 1)
 
         if dice_value == 1 or dice_value == 6:
-            if len(self.off_board_pieces) > 0:
-                self.move_piece_from_off_board_to_on_board(self.off_board_pieces[0], [0, 0])
+            if len(player.get_pieces_off_board()) > 0:
+                self.move_piece_from_off_board_to_on_board(player.get_pieces_off_board()[0], 0)
             else:
-                self.move_piece(self.on_board_pieces[0], dice_value)
-            self.player_roll_dice(player)
+                self.move_piece(player.get_pieces_on_board()[random_piece_position], dice_value)
+            return True # Player gets another turn
         else:
-            if len(self.on_board_pieces) > 0:
-                random_piece_position = random.randint(0, len(player.on_board_pieces) - 1)
+            # Change implementation, check if player have pieces on board
+            if len(player.get_pieces_on_board()) > 0:
                 self.move_piece(self.on_board_pieces[random_piece_position], dice_value)
             else:
                 print('No pieces on board')
+            return False # Player does not get another turn
 
 
     def add_off_board_piece(self, piece):
         self.off_board_pieces.append(piece)
+        piece.set_off_board_values()
 
     
-    def add_on_board_piece(self, piece, position = [0, 0]):
+    def add_on_board_piece(self, piece, position = 0):
         self.on_board_pieces.append(piece)
-        piece.position = position
+        piece.set_on_board_values(position)
 
 
     def remove_on_board_piece(self, piece):
