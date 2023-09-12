@@ -1,7 +1,7 @@
 from classes.piece import Piece
 
 class Player():
-    def __init__(self, name = 'default', color = 'white') -> None:
+    def __init__(self, name = 'default', color = 'red') -> None:
         self.name = name
         self.pieces = []
         self.color = color
@@ -11,7 +11,7 @@ class Player():
 
     def assign_pieces(self):
         for i in range(4):
-            self.pieces.append(Piece(i))
+            self.pieces.append(Piece(self, i))
 
 
     def get_piece(self, piece_number):

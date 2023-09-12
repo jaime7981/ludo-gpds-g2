@@ -1,6 +1,16 @@
 from classes.dice import Dice
 import random
 
+NUMBER_OF_SQUARES = 58
+SAFE_SQUARES = 6
+
+OFFSETS = {
+    'red': 0,
+    'green': 13,
+    'yellow': 26,
+    'blue': 39
+}
+
 class Board():
     def __init__(self) -> None:
         self.players = []
@@ -22,6 +32,7 @@ class Board():
 
     
     def set_player_order(self):
+        # Maybe change dice roll implementation into a gui handler
         players_roll_for_turns = self.dice.roll_multiple(len(self.players))
 
         for i in range(len(players_roll_for_turns)):
@@ -36,19 +47,29 @@ class Board():
                     self.players[j] = temp
 
 
+    def setup_game(self):
+        self.set_player_order()
+
+        for player in self.players:
+            for piece in player.pieces:
+                self.add_off_board_piece(piece)
+
+
     def player_roll_dice(self, player):
         dice_value = self.dice.roll()
 
+        # define usage of on board and off board pieces
+
         if dice_value == 1 or dice_value == 6:
-            if len(player.off_board_pieces) > 0:
-                self.move_piece_from_off_board_to_on_board(player.off_board_pieces[0], [0, 0])
+            if len(self.off_board_pieces) > 0:
+                self.move_piece_from_off_board_to_on_board(self.off_board_pieces[0], [0, 0])
             else:
-                self.move_piece(player.on_board_pieces[0], dice_value)
+                self.move_piece(self.on_board_pieces[0], dice_value)
             self.player_roll_dice(player)
         else:
-            if len(player.on_board_pieces) > 0:
+            if len(self.on_board_pieces) > 0:
                 random_piece_position = random.randint(0, len(player.on_board_pieces) - 1)
-                self.move_piece(player.on_board_pieces[random_piece_position], dice_value)
+                self.move_piece(self.on_board_pieces[random_piece_position], dice_value)
             else:
                 print('No pieces on board')
 
@@ -82,7 +103,9 @@ class Board():
 
     def move_piece(self, piece, dice_value):
         # TODO: define the logic for moving a piece
-        piece.position[0] += dice_value
+        piece.move(dice_value)
 
         #TODO: define pieces actions like eating other pieces
-    
+
+        # Relative piece position
+        piece_position = piece.position
