@@ -9,9 +9,10 @@ class Piece():
         self.on_board = False
 
 
-    def set_off_board_values(self):
+    def set_off_board_values(self, board_position):
         self.on_board = False
         self.position = 0
+        self.board_position = board_position
 
 
     def set_on_board_values(self):
@@ -33,4 +34,4 @@ class Piece():
     
     
     def __repr__(self) -> str:
-        return f'Piece(color: {self.player.color}, position: {self.position}, on_board: {self.on_board})'
+        return f'\nPiece(\n color: {self.player.color}\n position: {self.position}\n board_position: {self.board_position}\n on_board: {self.on_board})'

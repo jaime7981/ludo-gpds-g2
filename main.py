@@ -14,8 +14,6 @@ def main():
 
     board.setup_game()
 
-    # print(board.off_board_pieces)
-
     for iteration in range(40):
         print()
         while board.play_turn():

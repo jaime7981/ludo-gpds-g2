@@ -66,7 +66,6 @@ class Board():
             play_again = True
 
             if len(player.get_pieces_off_board()) > 0:
-                print(len(player.get_pieces_off_board()))
                 self.move_piece_from_off_board_to_on_board(player.get_pieces_off_board()[0])
                 return play_again # Player gets another turn
         
@@ -88,10 +87,10 @@ class Board():
 
         dice_value = self.dice.roll()
         print(f'{player.color} rolled {dice_value}')
-        
+
         player_play_again = self.player_roll_dice(player, dice_value)
 
-        print(f'On Board Pieces: {self.on_board_pieces}\nOff Board Pieces: {self.off_board_pieces}\n\n')
+        print(f'On Board Pieces:\n{self.on_board_pieces}\n')
 
         if player_play_again:
             return True
@@ -105,7 +104,7 @@ class Board():
 
     def add_off_board_piece(self, piece):
         self.off_board_pieces.append(piece)
-        piece.set_off_board_values()
+        piece.set_off_board_values(OFFSETS[piece.player.color])
 
     
     def add_on_board_piece(self, piece):
@@ -132,7 +131,7 @@ class Board():
     
 
     def move_piece(self, piece, dice_value):
-        board_piece_position = (OFFSETS[piece.player.color] + piece.position) % BOARD_LOOP
+        board_piece_position = (OFFSETS[piece.player.color] + piece.position + dice_value) % BOARD_LOOP
         
         piece.move(dice_value, board_piece_position)
 
