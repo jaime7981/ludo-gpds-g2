@@ -2,9 +2,8 @@ from classes.gui import GUI
 from classes.board import Board
 from classes.player import Player
 
-import time
-
 def main():
+    '''
     board = Board()
 
     board.add_player(Player('Player 1', 'red'))
@@ -13,12 +12,8 @@ def main():
     board.add_player(Player('Player 4', 'blue'))
 
     board.setup_game()
-
-    for iteration in range(40):
-        print()
-        while board.play_turn():
-            print("Rolling again")
-
+    '''
+    
     game_gui = GUI()
     game_gui.run_game()
 
