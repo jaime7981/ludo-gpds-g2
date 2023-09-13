@@ -10,10 +10,6 @@ ASSETS_PATH = './assets/'
 
 ASSETS_IMAGES = {
     'board': ASSETS_PATH + 'board.jpg',
-    'red_piece': ASSETS_PATH + 'red_piece.png',
-    'green_piece': ASSETS_PATH + 'green_piece.png',
-    'blue_piece': ASSETS_PATH + 'blue_piece.png',
-    'yellow_piece': ASSETS_PATH + 'yellow_piece.png',
     'dice_1': ASSETS_PATH + 'dice_1.png',
     'dice_2': ASSETS_PATH + 'dice_2.png',
     'dice_3': ASSETS_PATH + 'dice_3.png',
@@ -21,6 +17,8 @@ ASSETS_IMAGES = {
     'dice_5': ASSETS_PATH + 'dice_5.png',
     'dice_6': ASSETS_PATH + 'dice_6.png',
 }
+
+BOARD_MAP_PATH = ASSETS_PATH + 'board_map.csv'
 
 class GUI():
     def __init__(self, width = 612, height= 612) -> None:
@@ -31,7 +29,11 @@ class GUI():
         self.running = True
         self.tick = 60
 
+        self.board_map = self.load_board_map()
         self.board = Board()
+
+        self.last_dice_value = 1
+        self.last_player = None
 
         loaded_background = pygame.image.load('./assets/board.jpg')
         self.background = pygame.transform.scale(loaded_background, (width, height))
@@ -55,6 +57,15 @@ class GUI():
         square_height = board_height / NUMBER_OF_SQUARES_HEIGHT
 
         return (square_width, square_height)
+    
+
+    def load_board_map(self):
+        board_map = []
+        with open(BOARD_MAP_PATH, 'r') as file:
+            for line in file:
+                board_map.append([int(value) for value in line.split(',')])
+
+        return board_map
 
 
     def get_square_center(self, square_x = 0, square_y = 0):
@@ -72,19 +83,52 @@ class GUI():
 
     def draw_piece(self, piece: Piece, square_x = 0, square_y = 0):
         piece_color = piece.player.color
-        # self.draw_element_on_square_center(piece.image, square_x, square_y)
-        pygame.draw.circle(self.screen, piece_color, self.get_square_center(square_x, square_y), (self.square_dimentions[0] / 2) - 2)
-    
+        pygame.draw.circle(self.screen, piece_color, self.get_square_center(square_x, square_y), (self.square_dimentions[0] / 3))
+        pygame.draw.circle(self.screen, (0, 0, 0), self.get_square_center(square_x, square_y), (self.square_dimentions[0] / 3), 3)
+
+
+    def get_piece_position_from_board_map(self, piece: Piece):
+        for y, line in enumerate(self.board_map):
+            for x, square in enumerate(line):
+                if square == piece.board_position:
+                    return (x, y)
+
 
     def draw_pieces(self):
         for player in self.board.players:
             for piece in player.pieces:
                 if piece.on_board:
-                    # TODO: Make a way to parse the position of the piece to the gui
-                    # self.draw_piece(piece, piece.position[0], piece.position[1])
-                    
-                    pass
+                    piece_position = self.get_piece_position_from_board_map(piece)
+                    self.draw_piece(piece, piece_position[0], piece_position[1])
     
+
+    def draw_off_board_pieces(self):
+        for player in self.board.players:
+            number_of_off_board_pieces = 0
+
+            for piece in player.pieces:
+                if not piece.on_board:
+                    if player.color == 'red':
+                        self.draw_piece(piece, 1 + (1 * number_of_off_board_pieces), 1 - (-1 * number_of_off_board_pieces))
+                    elif player.color == 'green':
+                        self.draw_piece(piece, NUMBER_OF_SQUARES_WIDTH - 2 - (1 * number_of_off_board_pieces), 1 - (-1 * number_of_off_board_pieces))
+                    elif player.color == 'yellow':
+                        self.draw_piece(piece, NUMBER_OF_SQUARES_WIDTH - 2 - (1 * number_of_off_board_pieces), NUMBER_OF_SQUARES_HEIGHT - 2 + (-1 * number_of_off_board_pieces))
+                    elif player.color == 'blue':
+                        self.draw_piece(piece, 1 + (1 * number_of_off_board_pieces), NUMBER_OF_SQUARES_HEIGHT - 2 + (-1 * number_of_off_board_pieces))
+                
+                    number_of_off_board_pieces += 1
+
+
+    def draw_dice(self):
+        dice_image = pygame.image.load(ASSETS_IMAGES[f'dice_{self.last_dice_value}'])
+        dice_image = pygame.transform.scale(dice_image, (100, 100))
+        
+        if self.last_player:
+            dice_image.fill(self.last_player.color, special_flags=pygame.BLEND_ADD)
+        
+        self.draw_image_on_square_center(dice_image, 7, 7)
+
 
     def run_game(self):
         self.setup_board()
@@ -99,11 +143,13 @@ class GUI():
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                    self.board.play_turn()
+                    play_again, dice_value, player = self.board.play_turn()
+                    self.last_dice_value = dice_value
+                    self.last_player = player
 
-                    #if event.key == pygame.K_RETURN:
-                    #    self.board.play_turn()
-
+            self.draw_pieces()
+            self.draw_off_board_pieces()
+            self.draw_dice()
             pygame.display.update()
 
         pygame.quit()

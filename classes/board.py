@@ -95,13 +95,13 @@ class Board():
         print(f'On Board Pieces:\n{self.on_board_pieces}\n')
 
         if player_play_again:
-            return True
+            return (True, dice_value, player)
 
         self.turn += 1
         if self.turn == len(self.players):
             self.turn = 0
 
-        return False
+        return (False, dice_value, player)
 
 
     def add_off_board_piece(self, piece: Piece):
