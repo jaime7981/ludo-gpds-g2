@@ -106,12 +106,12 @@ class Board():
 
     def add_off_board_piece(self, piece: Piece):
         self.off_board_pieces.append(piece)
-        piece.set_off_board_values(OFFSETS[piece.player.color])
+        piece.set_off_board_values()
 
     
     def add_on_board_piece(self, piece: Piece):
         self.on_board_pieces.append(piece)
-        piece.set_on_board_values()
+        piece.set_on_board_values(OFFSETS[piece.player.color])
 
     
     def move_piece_from_off_board_to_on_board(self, piece: Piece):
@@ -129,4 +129,38 @@ class Board():
         
         piece.move(dice_value, board_piece_position)
 
+        self.moving_piece_send_opponent_piece_to_off_board(piece)
+
         print(f'Relative piece position: {piece.position}, Board piece position: {piece.board_position}')
+
+
+    def piece_is_on_safe_square(self, piece: Piece):
+        if piece.position % 13 == 0:
+            return True
+        
+        return False
+    
+
+    def pieces_are_on_same_square(self, piece1: Piece, piece2: Piece):
+        if piece1.board_position == piece2.board_position:
+            return True
+        
+        return False
+    
+
+    def pieces_are_different_color(self, piece1: Piece, piece2: Piece):
+        if piece1.player.color != piece2.player.color:
+            return True
+        
+        return False
+    
+
+    def moving_piece_send_opponent_piece_to_off_board(self, piece: Piece):
+        for player in self.players:
+            for player_piece in player.pieces:
+                if self.pieces_are_on_same_square(piece, player_piece) and self.pieces_are_different_color(piece, player_piece):
+                    # TODO: optional, check if pieces are on safe square
+                    self.move_piece_from_on_board_to_off_board(player_piece)
+                    return True
+        
+        return False

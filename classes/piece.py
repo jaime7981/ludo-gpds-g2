@@ -9,15 +9,16 @@ class Piece():
         self.on_board = False
 
 
-    def set_off_board_values(self, board_position):
+    def set_off_board_values(self):
         self.on_board = False
         self.position = 0
-        self.board_position = board_position
+        self.board_position = -1
 
 
-    def set_on_board_values(self):
+    def set_on_board_values(self, board_position):
         self.on_board = True
         self.position = 0
+        self.board_position = board_position
 
 
     def set_position(self, position):
@@ -27,6 +28,8 @@ class Piece():
     def move(self, number_of_moves, board_position = None):
         self.position += number_of_moves
         self.board_position = board_position
+
+        # board_piece_position = (piece_offset + self.position + number_of_moves) % BOARD_LOOP
 
 
     def __str__(self) -> str:
