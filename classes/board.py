@@ -18,6 +18,7 @@ class Board():
         self.on_board_pieces = []
         self.off_board_pieces = []
         self.dice = Dice()
+        self.turn = 0
 
     
     def add_player(self, player):
@@ -45,7 +46,6 @@ class Board():
 
 
     def set_players_color(self):
-
         for iter, key, value in zip(range(len(self.players)), OFFSETS.keys(), OFFSETS.values()):
             self.players[iter].color = key
             self.players[iter].offset = value
@@ -60,26 +60,47 @@ class Board():
 
 
     def player_roll_dice(self, player, dice_value = 0):
-        # Maybe change dice roll implementation into a gui handler
-        dice_value = self.dice.roll()
-
-        # TODO: define usage of on board and off board pieces
-
-        random_piece_position = random.randint(0, len(player.get_pieces_on_board()) - 1)
+        play_again = False
 
         if dice_value == 1 or dice_value == 6:
+            play_again = True
+
             if len(player.get_pieces_off_board()) > 0:
-                self.move_piece_from_off_board_to_on_board(player.get_pieces_off_board()[0], 0)
-            else:
-                self.move_piece(player.get_pieces_on_board()[random_piece_position], dice_value)
-            return True # Player gets another turn
+                print(len(player.get_pieces_off_board()))
+                self.move_piece_from_off_board_to_on_board(player.get_pieces_off_board()[0])
+                return play_again # Player gets another turn
+        
+        self.move_onboard_piece(player, dice_value)
+        
+        return play_again
+    
+
+    def move_onboard_piece(self, player, dice_value):
+        if len(player.get_pieces_on_board()) > 0:
+            random_piece_position = random.randint(0, len(player.get_pieces_on_board()) - 1)
+            self.move_piece(player.get_pieces_on_board()[random_piece_position], dice_value)
         else:
-            # Change implementation, check if player have pieces on board
-            if len(player.get_pieces_on_board()) > 0:
-                self.move_piece(self.on_board_pieces[random_piece_position], dice_value)
-            else:
-                print('No pieces on board')
-            return False # Player does not get another turn
+            print('No pieces on board')
+    
+
+    def play_turn(self):
+        player = self.players[self.turn % len(self.players)]
+
+        dice_value = self.dice.roll()
+        print(f'{player.color} rolled {dice_value}')
+        
+        player_play_again = self.player_roll_dice(player, dice_value)
+
+        print(f'On Board Pieces: {self.on_board_pieces}\nOff Board Pieces: {self.off_board_pieces}\n\n')
+
+        if player_play_again:
+            return True
+
+        self.turn += 1
+        if self.turn == len(self.players):
+            self.turn = 0
+
+        return False
 
 
     def add_off_board_piece(self, piece):
@@ -87,9 +108,9 @@ class Board():
         piece.set_off_board_values()
 
     
-    def add_on_board_piece(self, piece, position = 0):
+    def add_on_board_piece(self, piece):
         self.on_board_pieces.append(piece)
-        piece.set_on_board_values(position)
+        piece.set_on_board_values()
 
 
     def remove_on_board_piece(self, piece):
@@ -100,8 +121,8 @@ class Board():
         self.off_board_pieces.remove(piece)
 
     
-    def move_piece_from_off_board_to_on_board(self, piece, position):
-        self.add_on_board_piece(piece, position)
+    def move_piece_from_off_board_to_on_board(self, piece):
+        self.add_on_board_piece(piece)
         self.remove_off_board_piece(piece)
 
 
@@ -111,10 +132,8 @@ class Board():
     
 
     def move_piece(self, piece, dice_value):
-        # TODO: define the logic for moving a piece
-        piece.move(dice_value)
+        board_piece_position = (OFFSETS[piece.player.color] + piece.position) % BOARD_LOOP
+        
+        piece.move(dice_value, board_piece_position)
 
-        #TODO: define pieces actions like eating other pieces
-
-        # Relative piece position
-        piece_position = piece.position
+        print(f'Relative piece position: {piece.position}, Board piece position: {piece.board_position}')

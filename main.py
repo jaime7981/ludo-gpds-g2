@@ -14,7 +14,12 @@ def main():
 
     board.setup_game()
 
-    print(board.off_board_pieces)
+    # print(board.off_board_pieces)
+
+    for iteration in range(40):
+        print()
+        while board.play_turn():
+            print("Rolling again")
 
     game_gui = GUI()
     game_gui.run_game()
