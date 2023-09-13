@@ -1,4 +1,6 @@
 from classes.dice import Dice
+from classes.piece import Piece
+from classes.player import Player
 import random
 
 NUMBER_OF_SQUARES = 58
@@ -21,7 +23,7 @@ class Board():
         self.turn = 0
 
     
-    def add_player(self, player):
+    def add_player(self, player: Player):
         if len(self.players) <= 4:
             self.players.append(player)
         
@@ -29,7 +31,7 @@ class Board():
             print('Max number of players reached')
 
 
-    def remove_player(self, player):
+    def remove_player(self, player: Player):
         self.players.remove(player)
 
     
@@ -59,7 +61,7 @@ class Board():
                 self.add_off_board_piece(piece)
 
 
-    def player_roll_dice(self, player, dice_value = 0):
+    def player_roll_dice(self, player: Player, dice_value = 0):
         play_again = False
 
         if dice_value == 1 or dice_value == 6:
@@ -74,7 +76,7 @@ class Board():
         return play_again
     
 
-    def move_onboard_piece(self, player, dice_value):
+    def move_onboard_piece(self, player: Player, dice_value):
         if len(player.get_pieces_on_board()) > 0:
             random_piece_position = random.randint(0, len(player.get_pieces_on_board()) - 1)
             self.move_piece(player.get_pieces_on_board()[random_piece_position], dice_value)
@@ -102,35 +104,27 @@ class Board():
         return False
 
 
-    def add_off_board_piece(self, piece):
+    def add_off_board_piece(self, piece: Piece):
         self.off_board_pieces.append(piece)
         piece.set_off_board_values(OFFSETS[piece.player.color])
 
     
-    def add_on_board_piece(self, piece):
+    def add_on_board_piece(self, piece: Piece):
         self.on_board_pieces.append(piece)
         piece.set_on_board_values()
 
-
-    def remove_on_board_piece(self, piece):
-        self.on_board_pieces.remove(piece)
-
-
-    def remove_off_board_piece(self, piece):
+    
+    def move_piece_from_off_board_to_on_board(self, piece: Piece):
+        self.add_on_board_piece(piece)
         self.off_board_pieces.remove(piece)
 
-    
-    def move_piece_from_off_board_to_on_board(self, piece):
-        self.add_on_board_piece(piece)
-        self.remove_off_board_piece(piece)
 
-
-    def move_piece_from_on_board_to_off_board(self, piece):
+    def move_piece_from_on_board_to_off_board(self, piece: Piece):
         self.add_off_board_piece(piece)
-        self.remove_on_board_piece(piece)
+        self.on_board_pieces.remove(piece)
     
 
-    def move_piece(self, piece, dice_value):
+    def move_piece(self, piece: Piece, dice_value):
         board_piece_position = (OFFSETS[piece.player.color] + piece.position + dice_value) % BOARD_LOOP
         
         piece.move(dice_value, board_piece_position)
