@@ -1,4 +1,5 @@
 import pygame
+import sys
 from classes.piece import Piece
 from classes.board import Board
 from classes.player import Player
@@ -40,10 +41,19 @@ class GUI():
 
 
     def setup_board(self):
-        self.board.add_player(Player('Player 1', 'red'))
-        self.board.add_player(Player('Player 2', 'green'))
-        self.board.add_player(Player('Player 3', 'yellow'))
-        self.board.add_player(Player('Player 4', 'blue'))
+        players_num = self.get_num_players()
+        if players_num == 2:
+            self.board.add_player(Player('Player 1', 'red'))
+            self.board.add_player(Player('Player 2', 'yellow'))
+        elif players_num == 3:
+            self.board.add_player(Player('Player 1', 'red'))
+            self.board.add_player(Player('Player 2', 'green'))
+            self.board.add_player(Player('Player 3', 'yellow'))
+        else:
+            self.board.add_player(Player('Player 1', 'red'))
+            self.board.add_player(Player('Player 2', 'green'))
+            self.board.add_player(Player('Player 3', 'yellow'))
+            self.board.add_player(Player('Player 4', 'blue'))
 
         self.board.setup_game()
 
@@ -129,6 +139,62 @@ class GUI():
         
         self.draw_image_on_square_center(dice_image, 7, 7)
 
+    def get_num_players(self):
+        pygame.display.set_caption("Bienvenido a Ludo")
+        input_box = pygame.Rect(150, 100, 140, 32)
+        color_inactive = pygame.Color('lightskyblue3')
+        color_active = pygame.Color('dodgerblue2')
+        color = color_inactive
+        active = False
+        text = ''
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if input_box.collidepoint(event.pos):
+                        active = not active
+                    else:
+                        active = False
+                    color = color_active if active else color_inactive
+                if event.type == pygame.KEYDOWN:
+                    if active:
+                        if event.key == pygame.K_RETURN:
+                            try:
+                                num_players = int(text)
+                                if 2 <= num_players <= 4:
+                                    return num_players
+                            except ValueError:
+                                pass
+                        elif event.key == pygame.K_BACKSPACE:
+                            text = text[:-1]
+                        elif event.unicode.isdigit():
+                            text += event.unicode
+
+            self.screen.fill((30, 30, 30))
+            texts_font = pygame.font.Font(None, 36)
+
+            welcome_message = texts_font.render("¡Bienvenid@ a Ludo!", True, (255, 255, 255))
+            welcome_rect = welcome_message.get_rect(center=(self.screen.get_width() // 2, 50))
+            self.screen.blit(welcome_message, welcome_rect.topleft)
+
+            txt_surface = texts_font.render(text, True, color)
+            width = max(200, txt_surface.get_width() + 10)
+            input_box.w = width
+
+            input_box.x = (self.screen.get_width() - width) // 2
+            input_box.y = self.screen.get_height() // 2 - 50
+            input_message = texts_font.render("Ingrese la cantidad de jugadores:", True, (255, 255, 255))
+            input_message_rect = input_message.get_rect(midtop=(self.screen.get_width() // 2, input_box.y - 30))
+            self.screen.blit(input_message, input_message_rect)
+
+            self.screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+            pygame.draw.rect(self.screen, color, input_box, 2)
+
+            pygame.display.flip()
+            self.clock.tick(30)
 
     def run_game(self):
         self.setup_board()
