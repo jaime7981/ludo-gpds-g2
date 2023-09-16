@@ -41,9 +41,9 @@ class GUI():
 
     def setup_board(self):
         self.board.add_player(Player('Player 1', 'red'))
-        self.board.add_player(Player('Player 2', 'green'))
+        #self.board.add_player(Player('Player 2', 'green'))
         self.board.add_player(Player('Player 3', 'yellow'))
-        self.board.add_player(Player('Player 4', 'blue'))
+        #self.board.add_player(Player('Player 4', 'blue'))
 
         self.board.setup_game()
 
@@ -143,7 +143,7 @@ class GUI():
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                    play_again, dice_value, player = self.board.play_turn()
+                    dice_value, player = self.board.play_turn()
                     self.last_dice_value = dice_value
                     self.last_player = player
 

@@ -71,7 +71,10 @@ class Board():
                 self.move_piece_from_off_board_to_on_board(player.get_pieces_off_board()[0])
                 return play_again # Player gets another turn
         
-        self.move_onboard_piece(player, dice_value)
+        can_move = self.move_onboard_piece(player, dice_value)
+
+        if can_move == False:
+            play_again = True
         
         return play_again
     
@@ -79,9 +82,11 @@ class Board():
     def move_onboard_piece(self, player: Player, dice_value):
         if len(player.get_pieces_on_board()) > 0:
             random_piece_position = random.randint(0, len(player.get_pieces_on_board()) - 1)
-            self.move_piece(player.get_pieces_on_board()[random_piece_position], dice_value)
+            can_move = self.move_piece(player.get_pieces_on_board()[random_piece_position], dice_value)
+            return can_move
         else:
             print('No pieces on board')
+            return True
     
 
     def play_turn(self):
@@ -92,16 +97,14 @@ class Board():
 
         player_play_again = self.player_roll_dice(player, dice_value)
 
-        print(f'On Board Pieces:\n{self.on_board_pieces}\n')
-
         if player_play_again:
-            return (True, dice_value, player)
+            return (dice_value, player)
 
         self.turn += 1
         if self.turn == len(self.players):
             self.turn = 0
 
-        return (False, dice_value, player)
+        return (dice_value, player)
 
 
     def add_off_board_piece(self, piece: Piece):
@@ -127,11 +130,13 @@ class Board():
     def move_piece(self, piece: Piece, dice_value):
         board_piece_position = (OFFSETS[piece.player.color] + piece.position + dice_value) % BOARD_LOOP
         
-        piece.move(dice_value, board_piece_position)
+        can_move = piece.move(dice_value, board_piece_position)
 
         self.moving_piece_send_opponent_piece_to_off_board(piece)
 
         print(f'Relative piece position: {piece.position}, Board piece position: {piece.board_position}')
+
+        return can_move
 
 
     def piece_is_on_safe_square(self, piece: Piece):

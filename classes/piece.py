@@ -1,4 +1,10 @@
 
+END_GAME_OFFSET = {
+    'red': 0,
+    'green': 6,
+    'yellow': 12,
+    'blue': 18
+}
 
 class Piece():
     def __init__(self, player = None, piece_number = -1, position = 0) -> None:
@@ -24,13 +30,20 @@ class Piece():
     def set_position(self, position):
         self.position = position
 
-
-    def move(self, number_of_moves, board_position = None):
-        self.position += number_of_moves
-        self.board_position = board_position
-
-        # board_piece_position = (piece_offset + self.position + number_of_moves) % BOARD_LOOP
-
+    def move(self, number_of_moves, board_position = None, board_loop = 52):
+        
+        if self.position > board_loop and self.position < board_loop + 6:
+            self.position += number_of_moves
+            self.board_position = self.position + END_GAME_OFFSET[self.player.color]
+            return True
+        elif self.position == board_loop + 6:
+            return False
+        elif self.position <= board_loop:
+            self.position += number_of_moves
+            self.board_position = board_position
+            return True
+        else:
+            return False
 
     def __str__(self) -> str:
         return str(self.piece_number)
