@@ -44,7 +44,7 @@ class GUI():
         players_num = self.get_num_players()
         if players_num == 2:
             self.board.add_player(Player('Player 1', 'red'))
-            self.board.add_player(Player('Player 2', 'yellow'))
+            self.board.add_player(Player('Player 2', 'green'))
         elif players_num == 3:
             self.board.add_player(Player('Player 1', 'red'))
             self.board.add_player(Player('Player 2', 'green'))
@@ -101,7 +101,11 @@ class GUI():
         for y, line in enumerate(self.board_map):
             for x, square in enumerate(line):
                 if square == piece.board_position:
+                    #print(square, piece.board_position)
                     return (x, y)
+        #print(square, piece.board_position)
+        return square, piece.board_position
+
 
 
     def draw_pieces(self):
