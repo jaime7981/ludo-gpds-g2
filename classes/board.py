@@ -130,6 +130,14 @@ class Board():
     def move_piece(self, piece: Piece, dice_value):
         board_piece_position = (OFFSETS[piece.player.color] + piece.position + dice_value) % BOARD_LOOP
         other_pieces_in_position = [p for p in self.on_board_pieces if p != piece and p.board_position == piece.board_position and p.player.color == piece.player.color]
+        if len(other_pieces_in_position) >= 1:
+            print("soy crown me parece justo")
+            piece.crown = True
+            for i in range(len(other_pieces_in_position)):
+                other_pieces_in_position[i].crown = True
+            print(other_pieces_in_position[0].crown)
+        else:
+            print("not crown")
         print(other_pieces_in_position)
         can_move = piece.move(dice_value, board_piece_position)
         if can_move:

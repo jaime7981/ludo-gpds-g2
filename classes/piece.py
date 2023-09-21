@@ -13,10 +13,12 @@ class Piece():
         self.position = position
         self.board_position = position
         self.on_board = False
+        self.crown = False
 
 
     def set_off_board_values(self):
         self.on_board = False
+        self.crown = False
         self.position = 0
         self.board_position = -1
 
@@ -50,4 +52,4 @@ class Piece():
     
     
     def __repr__(self) -> str:
-        return f'\nPiece(\n color: {self.player.color}\n position: {self.position}\n board_position: {self.board_position}\n on_board: {self.on_board})'
+        return f'\nPiece(\n color: {self.player.color}\n position: {self.position}\n board_position: {self.board_position}\n on_board: {self.on_board}\n crown: {self.crown})'

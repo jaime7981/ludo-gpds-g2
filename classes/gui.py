@@ -95,6 +95,13 @@ class GUI():
         piece_color = piece.player.color
         pygame.draw.circle(self.screen, piece_color, self.get_square_center(square_x, square_y), (self.square_dimentions[0] / 3))
         pygame.draw.circle(self.screen, (0, 0, 0), self.get_square_center(square_x, square_y), (self.square_dimentions[0] / 3), 3)
+        if piece.crown:
+            radius = (self.square_dimentions[0] / 3)
+            #print("toy dibujando")
+            radius *= 1.5  # Increase by 50%, adjust this multiplier as needed
+
+            pygame.draw.circle(self.screen, piece_color, self.get_square_center(square_x, square_y), radius)
+            pygame.draw.circle(self.screen, (0, 0, 0), self.get_square_center(square_x, square_y), radius, 3)
 
 
     def get_piece_position_from_board_map(self, piece: Piece):
